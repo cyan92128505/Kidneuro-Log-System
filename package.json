@@ -1,0 +1,22 @@
+{
+  "name": "Kidneuro-Log-System",
+  "version": "0.0.2",
+  "description": "Kidneuro Log System",
+  "author": "AomaShinku",
+  "license": "MIT",
+  "main": "index.html",
+  "window": {
+    "width": 600,
+    "height": 1000,
+    "title": "Kidneuro Log System",
+    "toolbar": false
+  },
+  "scripts": {
+    "start": "nw"
+  },
+  "dependencies": {
+    "express": "^4.10.4",
+    "jade": "^1.8.1",
+    "stylus": "^0.49.3"
+  }
+}

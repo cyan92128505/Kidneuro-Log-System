@@ -1,0 +1,113 @@
+extends layout
+
+block content
+  style.
+    .x.axis line {
+      shape-rendering: auto;
+    }
+
+    .line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 1.5px;
+    }
+  div(ng-app="kidneuro" ng-controller="kidneuro_controller")
+    h2
+      a(class="btn" href="/savelog") Save Log File
+    h2 Time:{{nsdata.timestamp}}
+    h2 PoorSignalLevel:{{nsdata.poorSignalLevel}}
+    h2 Attention:{{nsdata.attention}}
+    h2 Meditation:{{nsdata.meditation}}
+    h2 Delta:{{nsdata.delta}}
+    h2 Theta:{{nsdata.theta}}
+    h2 lowAlpha:{{nsdata.lowAlpha}}
+    h2 highAlpha:{{nsdata.highAlpha}}
+    h2 lowBeta:{{nsdata.lowBeta}}
+    h2 highBeta:{{nsdata.highBeta}}
+    h2 lowGamma:{{nsdata.lowGamma}}
+    h2 highGamma:{{nsdata.highGamma}}
+  div(id="chart")
+  script(type='text/javascript').
+
+    var anime_chart = function(get_neurosky_data_num) {
+      var n = 100,
+        duration = 750,
+        now = new Date(Date.now() - duration),
+        count = get_neurosky_data(get_neurosky_data_num),
+        data = d3.range(n).map(function() { return 0; });
+
+      var margin = {top: 6, right: 0, bottom: 20, left: 40},
+        width = 400 - margin.right,
+        height = 120 - margin.top - margin.bottom;
+
+      var x = d3.time.scale()
+        .domain([now - (n - 2) * duration, now - duration])
+        .range([0, width]);
+
+      var y = d3.scale.linear()
+        .range([height, 0]);
+
+      var line = d3.svg.line()
+        .interpolate("basis")
+        .x(function(d, i) { return x(now - (n - 1 - i) * duration); })
+        .y(function(d, i) { return y(d); });
+
+      var svg = d3.select("body").append("p").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .style("margin-left", -margin.left + "px")
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+      .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+
+      var axis = svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(x.axis = d3.svg.axis().scale(x).orient("bottom"));
+
+      var path = svg.append("g")
+        .attr("clip-path", "url(#clip)")
+      .append("path")
+        .datum(data)
+        .attr("class", "line");
+
+      var transition = d3.select({}).transition()
+        .duration(750)
+        .ease("linear");
+
+      (function tick() {
+      transition = transition.each(function() {
+
+        // update the domains
+        now = new Date();
+        count = get_neurosky_data(get_neurosky_data_num);
+        console.log(count);
+        x.domain([now - (n - 2) * duration, now - duration]);
+        y.domain([0, 100]);
+
+        // push the accumulated count onto the back, and reset the count
+        data.push(Math.min(100, count));
+
+        // redraw the line
+        svg.select(".line")
+            .attr("d", line)
+            .attr("transform", null);
+
+        // slide the x-axis left
+        axis.call(x.axis);
+
+        // slide the line left
+        path.transition()
+            .attr("transform", "translate(" + x(now - (n - 1) * duration) + ")");
+
+        // pop the old data point off the front
+        data.shift();
+
+      }).transition().each("start", tick);
+      })();
+    };

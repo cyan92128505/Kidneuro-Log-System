@@ -1,0 +1,8 @@
+extends layout
+
+block content
+  div(ng-app="kid_name" ng-controller="kid_name_controller")
+    h1 Enter Name:
+    Input(type="text" name="kidName" ng-model="kid_name")
+    h1
+      a(ng-href="/logs?kid_name={{kid_name}}") Start Logging
