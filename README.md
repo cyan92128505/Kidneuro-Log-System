@@ -1,6 +1,4 @@
-#Kidneuro-Log-System
-
-===================
+# Kidneuro-Log-System
 
 allows to start a nodejs express server inside node-webkit.
 
